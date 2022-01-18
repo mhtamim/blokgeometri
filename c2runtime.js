@@ -22646,18 +22646,58 @@ cr.behaviors.Pin = function(runtime)
 	};
 	behaviorProto.exps = new Exps();
 }());
+;
+;
+cr.behaviors.destroy = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var behaviorProto = cr.behaviors.destroy.prototype;
+	behaviorProto.Type = function(behavior, objtype)
+	{
+		this.behavior = behavior;
+		this.objtype = objtype;
+		this.runtime = behavior.runtime;
+	};
+	var behtypeProto = behaviorProto.Type.prototype;
+	behtypeProto.onCreate = function()
+	{
+	};
+	behaviorProto.Instance = function(type, inst)
+	{
+		this.type = type;
+		this.behavior = type.behavior;
+		this.inst = inst;				// associated object instance to modify
+		this.runtime = type.runtime;
+	};
+	var behinstProto = behaviorProto.Instance.prototype;
+	behinstProto.onCreate = function()
+	{
+	};
+	behinstProto.tick = function ()
+	{
+		this.inst.update_bbox();
+		var bbox = this.inst.bbox;
+		var layout = this.inst.layer.layout;
+		if (bbox.right < 0 || bbox.bottom < 0 || bbox.left > layout.width || bbox.top > layout.height)
+			this.runtime.DestroyInstance(this.inst);
+	};
+}());
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.c2canvas,
 	cr.plugins_.Button,
 	cr.plugins_.Keyboard,
 	cr.plugins_.Mouse,
-	cr.plugins_.Text,
 	cr.plugins_.Touch,
-	cr.plugins_.Sprite,
+	cr.plugins_.Text,
 	cr.plugins_.TextBox,
+	cr.plugins_.Sprite,
 	cr.behaviors.DragnDrop,
 	cr.behaviors.Pin,
 	cr.behaviors.Physics,
+	cr.behaviors.destroy,
 	cr.system_object.prototype.cnds.OnLayoutStart,
 	cr.system_object.prototype.cnds.For,
 	cr.system_object.prototype.acts.CreateObject,
@@ -22710,6 +22750,7 @@ cr.getObjectRefTable = function () { return [
 	cr.system_object.prototype.acts.GoToLayout,
 	cr.plugins_.Touch.prototype.cnds.OnDoubleTapGestureObject,
 	cr.plugins_.Sprite.prototype.exps.AnimationFrame,
+	cr.plugins_.Sprite.prototype.acts.SetPos,
 	cr.plugins_.Sprite.prototype.acts.SetScale,
 	cr.plugins_.TextBox.prototype.acts.SetVisible,
 	cr.plugins_.Button.prototype.acts.SetVisible,
@@ -22726,5 +22767,6 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Text.prototype.acts.SetY,
 	cr.plugins_.Keyboard.prototype.cnds.OnKey,
 	cr.plugins_.Sprite.prototype.acts.MoveToBottom,
-	cr.system_object.prototype.exps.random
+	cr.system_object.prototype.exps.random,
+	cr.system_object.prototype.acts.RestartLayout
 ];};
